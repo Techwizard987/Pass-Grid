@@ -1,0 +1,99 @@
+from urllib.request import urlopen
+import warnings
+
+import cmasher as cmr
+import matplotlib.pyplot as plt
+import numpy as np
+from PIL import Image
+from highlight_text import ax_text
+import pandas as pd
+from mplsoccer import Pitch, VerticalPitch, add_image, FontManager
+from mplsoccer.statsbomb import read_event, read_lineup, EVENT_SLUG, LINEUP_SLUG
+
+pitch = Pitch()
+fig, axs = pitch.grid()
+
+pitch = VerticalPitch()
+fig, axs = pitch.grid(figheight=15, ncols=3)
+
+pitch = Pitch(linewidth=4)
+fig, axs = pitch.grid(nrows=3, ncols=4,  # number of rows/ columns
+                      figheight=25,  # the figure height in inches
+                      bottom=0.025,  # starts 2.5% in from the figure bottom
+                      # grid takes up 83% of the figure height
+                      # I calculated this so most of the figure is pitches
+                      # 1 - (bottom + endnote_height + endnote_space +
+                      # title_height + title_space) - 0.025 [space at top]
+                      grid_height=0.83,
+                      # reduced the amount of the figure height reserved
+                      # for the ax_endnote and ax_title since it is in
+                      # fractions of the figure height and the figure height
+                      # has increased. e.g. now the title_height is
+                      # 8% of the figheight (25).
+                      grid_width=0.95,  # the grid takes up 95% of the figwidth
+                      # 5% of the grid_height is the space between pitches.
+                      space=0.05,
+                      endnote_height=0.02, endnote_space=0.01,
+                      title_height=0.08, title_space=0.01)
+                     
+ pitch = Pitch(linewidth=4)
+fig, axs = pitch.grid(nrows=3, ncols=4,  # number of rows/ columns
+                      figheight=25,  # the figure height in inches
+                      bottom=0.025,  # starts 2.5% in from the figure bottom
+                      # increased the grid_height as no title/ endnote
+                      # now it takes up 95% of the figheight
+                      grid_height=0.95,
+                      grid_width=0.95,  # the grid takes up 95% of the figwidth
+                      # 6% of the grid_height is the space between pitches.
+                      space=0.06,
+                      # set the endnote/title height to zero so
+                      # they are not plotted. note this automatically
+                      # sets the endnote/title space to zero
+                      # so the grid starts at the bottom/left location
+                      endnote_height=0, title_height=0)
+                      
+                      
+                      
+r_df = pd.read_csv(r"D:\Users\Manav\Downloads\MU vs WestHam\MU HAM Full.csv")
+
+Nuno = r_df[(r_df['playerId']==123761) & (r_df['outcomeType/displayName'] =='Successful') & (r_df['type/displayName']=='Pass')]
+
+xpass= Nuno['x'].values
+ypass= Nuno['y'].values
+endX= Nuno['endX'].values
+endY= Nuno['endY'].values
+
+Nuno
+
+# dataframe with player_id and when they were subbed off
+time_off = Nuno.loc[(Nuno.type_name == 'Substitution'),
+                      ['playerId', 'minute']]
+time_off.rename({'minute': 'off'}, axis='columns', inplace=True)
+# dataframe with player_id and when they were subbed on
+time_on = Nuno.loc[(Nuno.type_name == 'Substitution'),
+                     ['substitution_replacement_id', 'minute']]
+time_on.rename({'substitution_replacement_id': 'playerId',
+                'minute': 'on'}, axis='columns', inplace=True)
+players_on = time_on.player_id
+# merge on times subbed on/off
+lineup = lineup.merge(time_on, on='playerId', how='left')
+lineup = lineup.merge(time_off, on='playerId', how='left')
+
+
+---------------------------------------------------------------------------
+AttributeError                            Traceback (most recent call last)
+<ipython-input-28-d4687e5e0769> in <module>
+      1 # dataframe with player_id and when they were subbed off
+----> 2 time_off = Nuno.loc[(Nuno.type_name == 'Substitution'),
+      3                       ['playerId', 'minute']]
+      4 time_off.rename({'minute': 'off'}, axis='columns', inplace=True)
+      5 # dataframe with player_id and when they were subbed on
+
+~\anaconda3\lib\site-packages\pandas\core\generic.py in __getattr__(self, name)
+   5476         ):
+   5477             return self[name]
+-> 5478         return object.__getattribute__(self, name)
+   5479 
+   5480     def __setattr__(self, name: str, value) -> None:
+
+AttributeError: 'DataFrame' object has no attribute 'type_name'
